@@ -5,42 +5,22 @@ namespace desseract;
 public class Engine : IDisposable
 {
     private bool _disposed;
-    public string InputFile { get; set; } = null!;
+    public object InputFile { get; set; }
     public string OutputFile { get; set; } = null!;
     private string OutputFilePath => OutputFile + ".txt";
 
     public Engine() { }
 
-    public Engine(string inputFile)
+    public async Task<StatusObject> ProcessAsync()
     {
-        InputFile = inputFile;
-    }
+        if (InputFile is not MemoryStream memStream) return ProcessFile((InputFile as string)!);
+        
+        const string streamToFilePath = "temp.png";
+        await using var file = new FileStream(streamToFilePath, FileMode.Create, FileAccess.Write);
+        memStream.Seek(0, SeekOrigin.Begin);
+        await memStream.CopyToAsync(file);
 
-    public StatusObject ProcessFile()
-    {
-        var processStartInfo = InitializeProcess();
-        var tesseractResponse = RunProcess(processStartInfo);
-        if  (tesseractResponse.Status == EngineStatus.TesseractFail)
-            return new StatusObject
-            {
-                Status = EngineStatus.FileReadFail,
-                Output = string.Empty
-            };
-
-        if (!File.Exists(OutputFilePath))
-        {
-            return new StatusObject
-            {
-                Status = EngineStatus.FileReadFail,
-                Output = string.Empty
-            };
-        }
-
-        return new StatusObject
-        {
-            Status = EngineStatus.Success,
-            Output = File.ReadAllText(OutputFilePath)
-        };
+        return ProcessFile(streamToFilePath);
     }
 
     protected virtual void Dispose(bool disposing)
@@ -61,12 +41,12 @@ public class Engine : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private ProcessStartInfo InitializeProcess()
+    private ProcessStartInfo InitializeProcess(string input)
     {
         return new ProcessStartInfo
         {
             FileName = "tesseract",
-            Arguments = $"{InputFile} {OutputFile}",
+            Arguments = $"{input} {OutputFile}",
             RedirectStandardOutput = false,
             UseShellExecute = false
         };
@@ -87,6 +67,38 @@ public class Engine : IDisposable
         {
             Status = EngineStatus.Success,
             Output = string.Empty
+        };
+    }
+
+    private StatusObject ProcessFile(string input)
+    {
+        var processStartInfo = InitializeProcess(input);
+        var tesseractResponse = RunProcess(processStartInfo);
+        File.Delete(input);
+        
+        if  (tesseractResponse.Status == EngineStatus.TesseractFail)
+            return new StatusObject
+            {
+                Status = EngineStatus.FileReadFail,
+                Output = string.Empty
+            };
+
+        if (!File.Exists(OutputFilePath))
+        {
+            return new StatusObject
+            {
+                Status = EngineStatus.FileReadFail,
+                Output = string.Empty
+            };
+        }
+
+        var response = File.ReadAllText(OutputFilePath);
+        File.Delete(OutputFilePath);
+
+        return new StatusObject
+        {
+            Status = EngineStatus.Success,
+            Output = response
         };
     }
 }
