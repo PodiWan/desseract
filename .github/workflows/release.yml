@@ -1,0 +1,20 @@
+name: Pull Request workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version of the nuget"
+        required: true
+        type: string
+jobs:
+  tagged-release:
+    name: "Deploy to nuget.org"
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          apt install dotnet-cli |
+          dotnet pack desseract.csproj --configuration Release |
+          dotnet nuget setApiKey ${{ secrets.NUGET_API_KEY }} |
+          dotnet push "bin/Release/dossereact.${{ github.event.inputs.version }}" -Source https://api.nuget.org/v3/index.json
+          
