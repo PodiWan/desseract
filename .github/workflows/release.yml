@@ -21,7 +21,7 @@ jobs:
           dotnet-version: 6.0.x
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
-      - run: dotnet pack desseract.csproj --configuration Release -o out
+      - run: dotnet pack desseract.csproj --configuration Release -o out /p:Version=${{ github.event.inputs.version }}
       - name: Push the nuget
-        run: dotnet push "bin/Release/desseract.${{ github.event.inputs.version }}" --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ./out/*.nupkg --source https://api.nuget.org/v3/index.json
           
