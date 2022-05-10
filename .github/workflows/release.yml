@@ -1,4 +1,4 @@
-name: Pull Request workflow
+name: Nuget deploy
 
 on:
   workflow_dispatch:
@@ -12,9 +12,15 @@ jobs:
     name: "Deploy to nuget.org"
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          apt install dotnet-cli |
-          dotnet pack desseract.csproj --configuration Release |
-          dotnet nuget setApiKey ${{ secrets.NUGET_API_KEY }} |
-          dotnet push "bin/Release/dossereact.${{ github.event.inputs.version }}" -Source https://api.nuget.org/v3/index.json
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core @ Latest
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
+      - run: dotnet pack desseract.csproj --configuration Release -o out /p:Version=${{ github.event.inputs.version }}
+
+      - name: Push the nuget
+        run: dotnet nuget push ./out/*.nupkg --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }}
           
