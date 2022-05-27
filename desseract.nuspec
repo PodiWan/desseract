@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>desseract</id>
-    <version>0.1.2</version>
+    <version>0.1.6</version>
     <title>Desseract</title>
     <authors>PodiWan</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <repository type="git" url="https://github.com/studlabteam/desseract" branch="master"/>
     <icon>favicon.png</icon>
     <description>An open-source, cross-platform .NET wrapper for Tesseract.</description>
-    <releaseNotes>Changelog: the input of the OCR can now be fed through a memory stream.</releaseNotes>
+    <releaseNotes>Changelog: remove output path specifier; add engine constructor with input source param; extend readme.</releaseNotes>
     <tags>Tesseract</tags>
   </metadata>
   <files>

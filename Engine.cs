@@ -5,22 +5,26 @@ namespace desseract;
 public class Engine : IDisposable
 {
     private bool _disposed;
-    public object InputFile { get; set; }
-    public string OutputFile { get; set; } = null!;
-    private string OutputFilePath => OutputFile + ".txt";
+    public object InputSource { get; set; }
+    private static string OutputFileName => $"~__dessertemp__~";
+    private static string OutputFilePath => $"{OutputFileName}.txt";
 
     public Engine() { }
 
+    public Engine(object inputSource)
+    {
+        InputSource = inputSource;
+    }
+
     public async Task<StatusObject> ProcessAsync()
     {
-        if (InputFile is not MemoryStream memStream) return ProcessFile((InputFile as string)!);
+        if (InputSource is not MemoryStream memStream) return ProcessFile((InputSource as string)!);
         
-        const string streamToFilePath = "temp.png";
-        await using var file = new FileStream(streamToFilePath, FileMode.Create, FileAccess.Write);
+        await using var file = new FileStream(OutputFilePath, FileMode.Create, FileAccess.Write);
         memStream.Seek(0, SeekOrigin.Begin);
         await memStream.CopyToAsync(file);
 
-        return ProcessFile(streamToFilePath);
+        return ProcessFile(OutputFilePath);
     }
 
     protected virtual void Dispose(bool disposing)
@@ -41,12 +45,12 @@ public class Engine : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private ProcessStartInfo InitializeProcess(string input)
+    private static ProcessStartInfo InitializeProcess(string input)
     {
         return new ProcessStartInfo
         {
             FileName = "tesseract",
-            Arguments = $"{input} {OutputFile}",
+            Arguments = $"{input} {OutputFileName}",
             RedirectStandardOutput = false,
             UseShellExecute = false
         };
@@ -74,7 +78,6 @@ public class Engine : IDisposable
     {
         var processStartInfo = InitializeProcess(input);
         var tesseractResponse = RunProcess(processStartInfo);
-        File.Delete(input);
         
         if  (tesseractResponse.Status == EngineStatus.TesseractFail)
             return new StatusObject
