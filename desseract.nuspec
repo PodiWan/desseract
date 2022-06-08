@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package >
+<package>
   <metadata>
     <id>desseract</id>
     <version>0.1.6</version>
@@ -10,9 +10,11 @@
     <icon>favicon.png</icon>
     <description>An open-source, cross-platform .NET wrapper for Tesseract.</description>
     <releaseNotes>Changelog: remove output path specifier; add engine constructor with input source param; extend readme.</releaseNotes>
+    <readme>README.md</readme>
     <tags>Tesseract</tags>
   </metadata>
   <files>
-    <file src="Doc/icons/favicon.png" target="" />
+    <file src="Doc\icons\favicon.png" target="" />
+    <file src="README.md" target="" />
   </files>
 </package>
