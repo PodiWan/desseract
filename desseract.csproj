@@ -9,8 +9,15 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Folder Include="Doc\icons" />
-    </ItemGroup>
+    <PropertyGroup>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/studlabteam/desseract</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageIcon>favicon.png</PackageIcon>
+    </PropertyGroup>
 
+    <ItemGroup>
+        <None Include="Doc\icons\favicon.png" Pack="true" PackagePath="" />
+        <None Include="README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
 </Project>
