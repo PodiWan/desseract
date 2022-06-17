@@ -1,4 +1,4 @@
-namespace desseract;
+namespace desseract.Enums;
 
 public enum EngineStatus
 {

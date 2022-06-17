@@ -1,6 +1,9 @@
 # desseract
 Your friendly neighbourhood tessaract wrapper for dotnet.
 
+### Dependencies
+This package is a [Tesseract](https://github.com/tesseract-ocr/tesseract) wrapper. Understandably, you are required to have it installed on your machine.
+
 ### Using the API
 The OCR exposes two `Engine` constructors, one accepting an input parameter and a parameterless one.
 ```csharp
@@ -11,7 +14,7 @@ var response = await engine.ProcessAsync();
 if (response.Status == EngineStatus.Success)
     Console.WriteLine(response.Output);
 else
-    Console.WriteLine("Could not parse file");;
+    Console.WriteLine("Could not parse file");
 ```
 
 You could also do

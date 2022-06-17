@@ -1,4 +1,6 @@
-namespace desseract;
+using desseract.Enums;
+
+namespace desseract.Models;
 
 public class StatusObject
 {

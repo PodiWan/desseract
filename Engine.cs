@@ -1,17 +1,24 @@
 ﻿using System.Diagnostics;
+using desseract.Enums;
+using desseract.Extensions;
+using desseract.Models;
 
 namespace desseract;
 
 public class Engine : IDisposable
 {
     private bool _disposed;
-    public object InputSource { get; set; }
+    public object InputSource { get; set; } = null!;
+    private LogLevel LogLevel { get; }
     private static string OutputFileName => $"~__dessertemp__~";
     private static string OutputFilePath => $"{OutputFileName}.txt";
 
-    public Engine() { }
+    public Engine(LogLevel logLevel = LogLevel.Fatal)
+    {
+        LogLevel = logLevel;
+    }
 
-    public Engine(object inputSource)
+    public Engine(object inputSource, LogLevel logLevel = LogLevel.Fatal) : this(logLevel)
     {
         InputSource = inputSource;
     }
@@ -45,12 +52,12 @@ public class Engine : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private static ProcessStartInfo InitializeProcess(string input)
+    private static ProcessStartInfo InitializeProcess(string input, LogLevel logLevel)
     {
         return new ProcessStartInfo
         {
             FileName = "tesseract",
-            Arguments = $"{input} {OutputFileName}",
+            Arguments = $"--loglevel {logLevel.ToTesseractFlag()} {input} {OutputFileName}",
             RedirectStandardOutput = false,
             UseShellExecute = false
         };
@@ -76,7 +83,7 @@ public class Engine : IDisposable
 
     private StatusObject ProcessFile(string input)
     {
-        var processStartInfo = InitializeProcess(input);
+        var processStartInfo = InitializeProcess(input, LogLevel);
         var tesseractResponse = RunProcess(processStartInfo);
         
         if  (tesseractResponse.Status == EngineStatus.TesseractFail)
@@ -95,13 +102,10 @@ public class Engine : IDisposable
             };
         }
 
-        var response = File.ReadAllText(OutputFilePath);
-        File.Delete(OutputFilePath);
-
         return new StatusObject
         {
             Status = EngineStatus.Success,
-            Output = response
+            Output = File.ReadAllText(OutputFilePath)
         };
     }
 }
